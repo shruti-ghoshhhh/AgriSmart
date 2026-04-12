@@ -771,9 +771,9 @@ const ConsumerDashboard = () => {
                         >
                           Buy & Escrow
                         </button>
-                      ) : (listing.winner?.toString() === user?._id?.toString() || (listing.winner?._id && listing.winner._id.toString() === user?._id?.toString())) ? (
+                      ) : ( (listing.winner?.toString() === (user?.id || user?._id)?.toString()) || (listing.winner?._id && listing.winner?._id.toString() === (user?.id || user?._id)?.toString()) ) ? (
                         <button
-                          onClick={() => handleCheckoutWithRazorpay(listing, {})}
+                          onClick={() => handleBuyNow(listing)}
                           className="flex-1 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-white py-2 rounded-xl text-sm font-black shadow-lg shadow-yellow-500/30 transition-all active:scale-95 flex items-center justify-center gap-1 animate-pulse"
                         >
                           🏆 Pay Now — You Won!
