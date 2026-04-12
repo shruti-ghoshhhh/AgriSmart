@@ -5,6 +5,7 @@ import Auth from './pages/Auth';
 import ProducerDashboard from './pages/ProducerDashboard';
 import ConsumerDashboard from './pages/ConsumerDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import ResetPassword from './pages/ResetPassword';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
@@ -53,6 +54,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route path="/reset-password/:token" element={<ResetPassword />} />
             </Routes>
             <ChatBot />
             <SupportChat />

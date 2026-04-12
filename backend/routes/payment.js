@@ -33,7 +33,11 @@ router.post('/checkout/:listingId', auth, async (req, res) => {
   try {
     const listing = await Auction.findById(req.params.listingId);
     if (!listing) return res.status(404).json({ message: 'Listing not found' });
-    if (listing.status !== 'open') return res.status(400).json({ message: 'Listing is no longer active' });
+
+    // For fixed-price, must be open. For auction, can be closed (already awarded).
+    if (listing.listingType === 'fixed' && listing.status !== 'open') {
+      return res.status(400).json({ message: 'Listing is no longer active' });
+    }
 
     // 1. Lock Check (Escrow simulation locking mechanism)
     if (listing.checkoutLock && listing.checkoutLock.expiresAt > new Date()) {

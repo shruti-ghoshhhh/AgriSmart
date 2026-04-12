@@ -1093,10 +1093,20 @@ const ProducerDashboard = () => {
             if (type === 'AWARD_BID') {
               try {
                 const token = window.localStorage.getItem('token');
-                await axios.post(`/api/listings/award/${leaderboardListing._id}`, { userId: bidData.user._id || bidData.user, amount: bidData.amount }, { headers: { 'x-auth-token': token }});
-                alert('Success! The auction is closed and the bidder has 24 hours to checkout via their Escrow panel.');
+                await axios.post(`/api/listings/award/${leaderboardListing._id}`, { userId: bidData.user?._id || bidData.user, amount: bidData.amount }, { headers: { 'x-auth-token': token }});
                 setLeaderboardListing(null);
-                window.location.reload();
+                // Update listing in state to show as closed
+                setMyListings(prev => prev.map(l =>
+                  l._id === leaderboardListing._id
+                    ? { ...l, status: 'closed', winner: bidData.user }
+                    : l
+                ));
+                // Show success toast
+                const toast = document.createElement('div');
+                toast.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:99999;background:#22c55e;color:white;padding:14px 28px;border-radius:16px;font-weight:900;font-size:15px;box-shadow:0 20px 40px rgba(34,197,94,0.3);transition:all 0.3s';
+                toast.textContent = '🏆 Auction closed! Winner has been notified via email.';
+                document.body.appendChild(toast);
+                setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 4000);
               } catch(err) {
                 alert(err.response?.data?.message || 'Error closing auction.');
               }

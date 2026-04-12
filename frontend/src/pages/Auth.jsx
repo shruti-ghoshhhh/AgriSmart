@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Leaf, ArrowLeft, Mail, Lock, User, Briefcase, Tractor, ShoppingBasket } from 'lucide-react';
+import { Leaf, ArrowLeft, Mail, Lock, User, Briefcase, Tractor, ShoppingBasket, Eye, EyeOff } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
@@ -24,6 +24,7 @@ const Auth = ({ mode = "login" }) => {
 
   const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -301,14 +302,21 @@ const Auth = ({ mode = "login" }) => {
                     <Lock size={18} />
                   </div>
                   <input 
-                    type="password" 
+                    type={showPassword ? 'text' : 'password'}
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
                     placeholder="••••••••"
-                    className="w-full pl-10 pr-4 py-3 bg-white dark:bg-earth-900 border border-earth-200 dark:border-earth-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-nature-500/50 focus:border-nature-500 transition-all text-earth-900 dark:text-white placeholder:text-earth-400 dark:placeholder:text-earth-600"
+                    className="w-full pl-10 pr-12 py-3 bg-white dark:bg-earth-900 border border-earth-200 dark:border-earth-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-nature-500/50 focus:border-nature-500 transition-all text-earth-900 dark:text-white placeholder:text-earth-400 dark:placeholder:text-earth-600"
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(p => !p)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-earth-400 hover:text-earth-700 dark:hover:text-white transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
               </div>
 

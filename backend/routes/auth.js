@@ -34,9 +34,10 @@ router.post('/forgot-password', async (req, res) => {
     user.resetPasswordExpires = Date.now() + 3600000; 
     await user.save();
 
-    // Send email
+    // Send email with production URL
     const { sendEmail, emailTemplates } = require('../utils/mailer');
-    const resetLink = `http://localhost:5173/reset-password/${resetToken}`; // Demo link
+    const frontendUrl = process.env.FRONTEND_URL || 'https://agri-smart-ivory.vercel.app';
+    const resetLink = `${frontendUrl}/reset-password/${resetToken}`;
     
     await sendEmail(emailTemplates.passwordReset(user, resetLink));
 
