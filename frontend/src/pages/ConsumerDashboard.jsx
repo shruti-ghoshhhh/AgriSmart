@@ -192,7 +192,7 @@ const ConsumerDashboard = () => {
     },
     { 
       title: 'Total Spent', 
-      value: `$${dashboardStats.counts.totalSpent.toLocaleString()}`, 
+      value: `₹${dashboardStats.counts.totalSpent.toLocaleString()}`, 
       trend: 'History', 
       icon: <ShoppingBag className="text-yellow-500" />, 
       data: dashboardStats.timeline.length > 0 ? dashboardStats.timeline : savingsData, 
@@ -401,7 +401,7 @@ const ConsumerDashboard = () => {
             className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] bg-nature-600 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 font-bold text-sm"
           >
             <Zap size={16} className="animate-pulse" />
-            <span className="text-lime-200">{liveBidToast?.bidderName || 'Someone'}</span> bid <span className="text-lime-300 text-base">${liveBidToast?.newBid}</span> live!
+            <span className="text-lime-200">{liveBidToast?.bidderName || 'Someone'}</span> bid <span className="text-lime-300 text-base">₹{liveBidToast?.newBid}</span> live!
           </motion.div>
         )}
       </AnimatePresence>
@@ -743,7 +743,7 @@ const ConsumerDashboard = () => {
                         animate={{ scale: 1, color: '#15803d' }}
                         className="text-xl font-bold text-nature-700"
                       >
-                        {listing.listingType === 'fixed' ? `$${listing.price}` : `$${listing.currentBid}`}
+                        {listing.listingType === 'fixed' ? `₹${listing.price}` : `₹${listing.currentBid}`}
                       </motion.span>
                       <span className="text-[10px] uppercase font-black text-earth-400">
                         {listing.listingType === 'fixed' ? 'Fixed Price' : `Current Bid • ${listing.bids?.length || 0} Bids`}
@@ -802,7 +802,7 @@ const ConsumerDashboard = () => {
                       <div className="flex items-start justify-between mb-4">
                         <div>
                           <h3 className="font-bold text-earth-900 dark:text-white">{order.listing?.title || 'Order'}</h3>
-                          <p className="text-sm text-earth-500 mb-1">From: {order.seller?.name} • {order.quantity}kg • ${order.totalAmount}</p>
+                          <p className="text-sm text-earth-500 mb-1">From: {order.seller?.name} • {order.quantity}kg • ₹{order.totalAmount}</p>
                           {order.paymentStatus === 'escrowed' && (
                             <span className="inline-flex items-center gap-1 text-[10px] bg-indigo-500/10 text-indigo-500 px-2 py-0.5 rounded uppercase font-black tracking-widest"><Package size={10}/> Escrowed Secured</span>
                           )}
@@ -1057,17 +1057,17 @@ const ConsumerDashboard = () => {
                 
                 <div className="bg-earth-50 dark:bg-zinc-800 p-4 rounded-2xl mb-6">
                    <p className="text-sm text-earth-500 mb-1">Current Highest Bid</p>
-                   <p className="text-3xl font-black text-nature-600">${selectedListing?.currentBid}</p>
+                   <p className="text-3xl font-black text-nature-600">₹{selectedListing?.currentBid}</p>
                 </div>
 
                 <form onSubmit={handlePlaceBid} className="space-y-6">
                   <div>
-                    <label className="block text-xs font-bold text-earth-400 uppercase tracking-widest mb-2">Your Bid Amount ($)</label>
+                    <label className="block text-xs font-bold text-earth-400 uppercase tracking-widest mb-2">Your Bid Amount (₹)</label>
                     <input 
                       type="number" 
                       value={bidAmount}
                       onChange={(e) => setBidAmount(e.target.value)}
-                      placeholder={`Enter more than $${selectedListing?.currentBid}`}
+                      placeholder={`Enter more than ₹${selectedListing?.currentBid}`}
                       className="w-full bg-earth-50 dark:bg-zinc-800 border-2 border-earth-100 dark:border-zinc-700 rounded-2xl px-6 py-4 text-xl font-bold focus:border-nature-500 outline-none transition-all"
                       min={selectedListing?.currentBid + 1}
                       required

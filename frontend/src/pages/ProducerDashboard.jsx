@@ -187,7 +187,7 @@ const ProducerDashboard = () => {
     },
     { 
       title: 'Total Earnings', 
-      value: `$${dashboardStats.counts.totalEarnings.toLocaleString()}`, 
+      value: `₹${dashboardStats.counts.totalEarnings.toLocaleString()}`, 
       trend: '+18%', 
       icon: <DollarSign className="text-yellow-500" />, 
       data: dashboardStats.timeline.length > 0 ? dashboardStats.timeline : costData, 
@@ -526,7 +526,7 @@ const ProducerDashboard = () => {
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-earth-700 dark:text-earth-300 uppercase tracking-wider">
-                      {newListingData.listingType === 'fixed' ? 'Final Price ($)' : 'Starting Bid ($)'}
+                      {newListingData.listingType === 'fixed' ? 'Final Price (₹)' : 'Starting Bid (₹)'}
                     </label>
                     <input 
                       type="number" 
@@ -587,7 +587,7 @@ const ProducerDashboard = () => {
                  >
                    {hasNewBid && (
                      <div className="absolute top-0 left-0 right-0 bg-nature-500 text-white text-[9px] font-black py-1 text-center tracking-widest flex items-center justify-center gap-1">
-                       <Zap size={10} /> NEW BID: ${hasNewBid} — {listing.bids?.length || 0} bids
+                       <Zap size={10} /> NEW BID: ₹{hasNewBid} — {listing.bids?.length || 0} bids
                      </div>
                    )}
                    {listing.listingType === 'fixed' && (
@@ -604,7 +604,7 @@ const ProducerDashboard = () => {
                           <div className="flex items-center gap-4 mt-2">
                              <span className="text-xs font-bold text-earth-400">
                                {listing.listingType === 'fixed' ? 'Price: ' : 'Top Bid: '} 
-                               <span className="text-earth-900 dark:text-white">${listing.listingType === 'fixed' ? listing.price : listing.currentBid}</span>
+                               <span className="text-earth-900 dark:text-white">₹{listing.listingType === 'fixed' ? listing.price : listing.currentBid}</span>
                              </span>
                              {listing.listingType === 'auction' && (
                                <span className="text-xs font-bold text-earth-400 tracking-tighter bg-earth-50 dark:bg-zinc-800 px-2 py-0.5 rounded italic">Auction</span>
@@ -741,7 +741,7 @@ const ProducerDashboard = () => {
                     <div className="flex items-start justify-between mb-3">
                       <div>
                         <h3 className="font-bold text-earth-900 dark:text-white">{order.listing?.title || 'Order'}</h3>
-                        <p className="text-sm text-earth-500">From: {order.buyer?.name} • {order.quantity}kg • ${order.totalAmount}</p>
+                        <p className="text-sm text-earth-500">From: {order.buyer?.name} • {order.quantity}kg • ₹{order.totalAmount}</p>
                         {order.deliveryAddress?.label && <p className="text-xs text-earth-400 mt-1">📍 {order.deliveryAddress.label}</p>}
                         {order.paymentStatus === 'escrowed' && (
                           <div className="mt-2 text-[10px] bg-indigo-50 dark:bg-indigo-900/10 text-indigo-600 dark:text-indigo-400 px-3 py-1.5 rounded-lg border border-indigo-100 dark:border-indigo-800/30 inline-block">
@@ -1062,7 +1062,7 @@ const ProducerDashboard = () => {
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-earth-700 dark:text-earth-300 uppercase">Price / Start Bid ($)</label>
+                  <label className="text-xs font-bold text-earth-700 dark:text-earth-300 uppercase">Price / Start Bid (₹)</label>
                   <input type="number" step="0.01" value={editingListing.price} onChange={e => setEditingListing({...editingListing, price: e.target.value})} className="w-full bg-earth-50 dark:bg-zinc-800 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-nature-500" required />
                 </div>
                 <div className="space-y-1.5">
@@ -1089,6 +1089,19 @@ const ProducerDashboard = () => {
         <BidLeaderboard 
           listing={leaderboardListing} 
           onClose={() => setLeaderboardListing(null)} 
+          onPlaceBid={async (type, bidData) => {
+            if (type === 'AWARD_BID') {
+              try {
+                const token = window.localStorage.getItem('token');
+                await axios.post(`/api/listings/award/${leaderboardListing._id}`, { userId: bidData.user._id || bidData.user, amount: bidData.amount }, { headers: { 'x-auth-token': token }});
+                alert('Success! The auction is closed and the bidder has 24 hours to checkout via their Escrow panel.');
+                setLeaderboardListing(null);
+                window.location.reload();
+              } catch(err) {
+                alert(err.response?.data?.message || 'Error closing auction.');
+              }
+            }
+          }}
         />
       )}
     </div>

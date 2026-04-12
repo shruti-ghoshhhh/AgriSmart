@@ -140,7 +140,7 @@ const BidLeaderboard = ({ listing, onClose, onPlaceBid }) => {
                 animate={topBidPulse ? { scale: [1, 1.1, 1], color: ['#a3e635', '#ffffff', '#a3e635'] } : {}}
                 className="text-4xl font-black text-nature-400 tabular-nums"
               >
-                ${ticker !== null ? ticker : (topBid?.amount || listing?.currentBid || listing?.startingPrice || 0)}
+                ₹{ticker !== null ? ticker : (topBid?.amount || listing?.currentBid || listing?.startingPrice || 0)}
               </motion.div>
             </div>
             <div className="text-right">
@@ -208,7 +208,7 @@ const BidLeaderboard = ({ listing, onClose, onPlaceBid }) => {
                       animate={isNew ? { scale: [1.3, 1] } : {}}
                       className={`text-lg font-black tabular-nums ${isTop ? 'text-nature-400' : 'text-white'}`}
                     >
-                      ${bid.amount}
+                      ₹{bid.amount}
                     </motion.div>
                   </motion.div>
                 );
@@ -217,30 +217,52 @@ const BidLeaderboard = ({ listing, onClose, onPlaceBid }) => {
           )}
         </div>
 
-        {/* Bid input */}
-        <div className="p-4 border-t border-zinc-800 bg-zinc-900/50">
-          <p className="text-xs text-zinc-500 mb-2 font-bold uppercase tracking-wider">
-            Place a bid (any amount)
-          </p>
-          <form onSubmit={handleBid} className="flex gap-2">
-            <input
-              type="number"
-              step="0.01"
-              min="0.01"
-              value={bidAmount}
-              onChange={e => setBidAmount(e.target.value)}
-              placeholder="Enter bid amount..."
-              className="flex-1 bg-zinc-800 border border-zinc-700 text-white px-4 py-3 rounded-xl text-sm font-bold placeholder:text-zinc-600 focus:outline-none focus:border-nature-500"
-            />
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              type="submit"
-              className="px-6 py-3 bg-nature-600 hover:bg-nature-500 text-white rounded-xl font-black text-sm transition-all shadow-lg shadow-nature-600/30"
-            >
-              BID
-            </motion.button>
-          </form>
-        </div>
+        {/* Bid input or Producer Action */}
+        {!listing ? null : listing.producer === (window.localStorage.getItem('userId') || listing.producer) ? (
+          <div className="p-4 border-t border-zinc-800 bg-zinc-900/50">
+            <p className="text-xs text-zinc-500 mb-2 font-bold uppercase tracking-wider">
+              Producer Action
+            </p>
+            {bids.length > 0 ? (
+              <button
+                onClick={() => {
+                  if (window.confirm("Are you sure you want to accept this top bid and close the auction?")) {
+                    onPlaceBid('AWARD_BID', bids[0]);
+                  }
+                }}
+                className="w-full px-6 py-3 bg-yellow-500 hover:bg-yellow-400 text-zinc-900 rounded-xl font-black text-sm transition-all shadow-lg shadow-yellow-500/20"
+              >
+                ACCEPT ₹{bids[0].amount} BID & END AUCTION
+              </button>
+            ) : (
+                <p className="text-sm font-bold text-zinc-400 text-center italic py-2">Waiting for bids to arrive...</p>
+            )}
+          </div>
+        ) : (
+          <div className="p-4 border-t border-zinc-800 bg-zinc-900/50">
+            <p className="text-xs text-zinc-500 mb-2 font-bold uppercase tracking-wider">
+              Place a bid (any amount)
+            </p>
+            <form onSubmit={handleBid} className="flex gap-2">
+              <input
+                type="number"
+                step="0.01"
+                min="0.01"
+                value={bidAmount}
+                onChange={e => setBidAmount(e.target.value)}
+                placeholder="Enter bid amount..."
+                className="flex-1 bg-zinc-800 border border-zinc-700 text-white px-4 py-3 rounded-xl text-sm font-bold placeholder:text-zinc-600 focus:outline-none focus:border-nature-500"
+              />
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                type="submit"
+                className="px-6 py-3 bg-nature-600 hover:bg-nature-500 text-white rounded-xl font-black text-sm transition-all shadow-lg shadow-nature-600/30"
+              >
+                BID
+              </motion.button>
+            </form>
+          </div>
+        )}
       </motion.div>
     </motion.div>
   );
