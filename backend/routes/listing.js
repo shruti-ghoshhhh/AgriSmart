@@ -172,8 +172,8 @@ router.post('/bid/:id', auth, async (req, res) => {
       bidderId: req.user.id,
       bidderName: updatedListing.highestBidder?.name || 'Anonymous',
       bids: updatedListing.bids.map(b => ({
-        user: b.user?._id || b.user,
-        name: b.user?.name || 'Anonymous',
+        user: b.user?._id || b.user, // The ID
+        name: b.user?.name || 'Anonymous', // The display name
         amount: b.amount,
         timestamp: b.timestamp
       }))
@@ -231,6 +231,10 @@ const handleExpiredAwards = async (listing) => {
 router.post('/award/:id', auth, async (req, res) => {
   try {
     const { userId, amount } = req.body;
+    const mongoose = require('mongoose');
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: 'Invalid User ID provided for awarding.' });
+    }
     const listing = await Auction.findById(req.params.id);
 
     if (!listing) return res.status(404).json({ message: 'Listing not found' });
@@ -258,7 +262,12 @@ router.post('/award/:id', auth, async (req, res) => {
         bidderId: userId,
         bidderName: winnerData?.name || 'Winner',
         status: 'closed',
-        winnerId: userId
+        winnerId: userId,
+        bids: listing.bids.map(b => ({
+          user: b.user?._id || b.user,
+          amount: b.amount,
+          timestamp: b.timestamp
+        }))
     });
 
     // Send response immediately so Producer UI is snappy

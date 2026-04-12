@@ -54,7 +54,8 @@ router.post('/checkout/:listingId', auth, async (req, res) => {
         if (!listing.winner) {
             return res.status(403).json({ message: 'This auction has not been awarded to a winner yet.' });
         }
-        if (listing.winner.toString() !== req.user.id) {
+        const currentWinnerId = (listing.winner._id || listing.winner).toString();
+        if (currentWinnerId !== req.user.id) {
             return res.status(403).json({ message: 'Only the awarded winner can checkout this auction.' });
         }
         

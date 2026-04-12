@@ -159,7 +159,7 @@ const ConsumerDashboard = () => {
       });
 
     // Listen for real-time bid updates (and awards)
-    const handleBidUpdate = ({ listingId, newBid, bidderName, bids: newBids, status, winnerId }) => {
+    const handleBidUpdate = ({ listingId, newBid, bidderName, bidderId, bids: newBids, status, winnerId }) => {
       setListings(prev => prev.map(l =>
         l._id === listingId
           ? { 
@@ -173,7 +173,7 @@ const ConsumerDashboard = () => {
       ));
       // Update leaderboard if it's open for this listing
       if (window._bidLeaderboardUpdate) {
-        window._bidLeaderboardUpdate({ listingId, newBid, bidderName, bids: newBids });
+        window._bidLeaderboardUpdate({ listingId, newBid, bidderName, bidderId, bids: newBids });
       }
       // Pulse animation
       setPulsedListings(prev => new Set([...prev, listingId]));

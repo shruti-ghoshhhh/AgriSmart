@@ -36,7 +36,9 @@ const Auth = ({ mode = "login" }) => {
       alert('📩 ' + res.data.message);
       setIsForgotModalOpen(false);
     } catch (err) {
-      alert(err.response?.data?.message || 'Error processing request');
+      console.error('Forgot password error:', err);
+      const detail = err.response?.data?.message || err.message || 'No details available';
+      alert(`❌ Error processing request: ${detail}\n\nPlease check your internet connection or try again later.`);
     }
   };
 
