@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-white text-earth-900 font-sans antialiased overflow-x-hidden transition-colors duration-300 dark:bg-zinc-950 dark:text-zinc-50;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-bold tracking-tight text-nature-950 dark:text-white;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-lg dark:bg-earth-900/70 dark:border-white/10;
+  }
+  
+  .glass-dark {
+    @apply bg-nature-950/80 backdrop-blur-md border border-nature-800/50 shadow-xl;
+  }
+  
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-nature-600 to-nature-400;
+  }
+}
+
+/* Custom Scrollbar for a premium feel */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-earth-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-nature-300 rounded-full cursor-pointer transition-colors duration-300 hover:bg-nature-400;
+}
+@layer utilities {
+  .producer-marker {
+    filter: hue-rotate(-15deg) saturate(1.2) brightness(0.9);
+  }
+
+  .user-marker {
+    filter: hue-rotate(130deg) saturate(1.5) brightness(1);
+  }
+}
