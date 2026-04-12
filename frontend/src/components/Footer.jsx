@@ -32,7 +32,6 @@ const Footer = () => {
               <li><a href="#" className="hover:text-nature-400 transition-colors">Marketplace</a></li>
               <li><a href="#" className="hover:text-nature-400 transition-colors">For Farmers</a></li>
               <li><a href="#" className="hover:text-nature-400 transition-colors">For Consumers</a></li>
-              <li><a href="#" className="hover:text-nature-400 transition-colors">Pricing</a></li>
             </ul>
           </div>
 
@@ -40,8 +39,6 @@ const Footer = () => {
             <h4 className="text-earth-900 dark:text-white font-bold mb-6">Company</h4>
             <ul className="space-y-4 text-sm text-earth-400">
               <li><a href="#" className="hover:text-nature-400 transition-colors">About Us</a></li>
-              <li><a href="#" className="hover:text-nature-400 transition-colors">Careers</a></li>
-              <li><a href="#" className="hover:text-nature-400 transition-colors">Blog</a></li>
               <li><a href="#" className="hover:text-nature-400 transition-colors">Contact</a></li>
             </ul>
           </div>
