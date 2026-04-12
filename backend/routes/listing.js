@@ -249,7 +249,22 @@ router.post('/award/:id', auth, async (req, res) => {
 
     await listing.save();
 
-    // Notify winner via email (optional but recommended)
+    // Broadcast real-time update via Socket.io so everyone sees it's closed and the winner sees "Pay Now"
+    const io = req.app.get('io');
+    const winnerData = await User.findById(userId).select('name');
+    io.emit('bid-update', {
+        listingId: listing._id,
+        newBid: amount,
+        bidderId: userId,
+        bidderName: winnerData?.name || 'Winner',
+        status: 'closed',
+        winnerId: userId
+    });
+
+    // Send response immediately so Producer UI is snappy
+    res.json(listing);
+
+    // Notify winner via email (non-blocking in background)
     try {
         const winner = await User.findById(userId);
         if (winner) {
@@ -282,12 +297,6 @@ router.post('/award/:id', auth, async (req, res) => {
     } catch (err) {
         console.error('Email notify error:', err.message);
     }
-
-    res.json(listing);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
-  }
 });
 
 // @route   POST api/listings/buy/:id

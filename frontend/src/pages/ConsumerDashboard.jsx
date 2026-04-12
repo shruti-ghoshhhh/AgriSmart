@@ -158,11 +158,17 @@ const ConsumerDashboard = () => {
         }
       });
 
-    // Listen for real-time bid updates
-    const handleBidUpdate = ({ listingId, newBid, bidderName, bids: newBids }) => {
+    // Listen for real-time bid updates (and awards)
+    const handleBidUpdate = ({ listingId, newBid, bidderName, bids: newBids, status, winnerId }) => {
       setListings(prev => prev.map(l =>
         l._id === listingId
-          ? { ...l, currentBid: newBid, bids: newBids || [...(l.bids || []), { amount: newBid, name: bidderName }] }
+          ? { 
+              ...l, 
+              currentBid: newBid, 
+              status: status || l.status,
+              winner: winnerId || l.winner,
+              bids: newBids || [...(l.bids || []), { amount: newBid, name: bidderName }] 
+            }
           : l
       ));
       // Update leaderboard if it's open for this listing
@@ -758,7 +764,7 @@ const ConsumerDashboard = () => {
                         >
                           Buy & Escrow
                         </button>
-                      ) : listing.winner && (listing.winner === user?._id || listing.winner?._id === user?._id) ? (
+                      ) : (listing.winner?.toString() === user?._id?.toString() || (listing.winner?._id && listing.winner._id.toString() === user?._id?.toString())) ? (
                         <button
                           onClick={() => handleCheckoutWithRazorpay(listing, {})}
                           className="flex-1 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-white py-2 rounded-xl text-sm font-black shadow-lg shadow-yellow-500/30 transition-all active:scale-95 flex items-center justify-center gap-1 animate-pulse"

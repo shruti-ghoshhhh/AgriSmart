@@ -182,7 +182,9 @@ const sendEmail = async ({ to, subject, html }) => {
     });
     console.log(`✉ Email sent to ${to}: ${subject}`);
   } catch (err) {
-    console.error('✗ Email failed:', err.message);
+    console.error(`✗ Email FAILED to ${to}:`, err.message);
+    if (err.code === 'EAUTH') console.error('  -> AUTH ERROR: Check EMAIL_USER and EMAIL_PASS (App Password).');
+    if (err.code === 'ECONNREFUSED') console.error('  -> CONNECTION ERROR: SMTP server refused connection.');
   }
 };
 

@@ -34,14 +34,17 @@ router.post('/forgot-password', async (req, res) => {
     user.resetPasswordExpires = Date.now() + 3600000; 
     await user.save();
 
-    // Send email with production URL
+    // Respond immediately so user isn't stuck waiting for the mail server
+    res.json({ message: 'A password reset link has been sent to your email.' });
+
+    // Send email with production URL in background
     const { sendEmail, emailTemplates } = require('../utils/mailer');
     const frontendUrl = process.env.FRONTEND_URL || 'https://agri-smart-ivory.vercel.app';
     const resetLink = `${frontendUrl}/reset-password/${resetToken}`;
     
-    await sendEmail(emailTemplates.passwordReset(user, resetLink));
-
-    res.json({ message: 'A password reset link has been sent to your email.' });
+    sendEmail(emailTemplates.passwordReset(user, resetLink)).catch(err => {
+      console.error('Background password reset email failed:', err.message);
+    });
   } catch (err) {
     console.error('Forgot Password Error:', err.message);
     res.status(500).send('Server error');
