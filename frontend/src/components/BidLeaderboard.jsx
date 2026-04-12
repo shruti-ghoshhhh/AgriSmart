@@ -28,7 +28,8 @@ const BidLeaderboard = ({ listing, onClose, onPlaceBid }) => {
           id: b._id || `${b.user?._id || b.user}-${b.amount}-${b.timestamp}`,
           name: b.user?.name || b.name || 'Anonymous',
           amount: b.amount,
-          timestamp: b.timestamp
+          timestamp: b.timestamp,
+          user: b.user || b.bidderId || b.id
         }))
         .sort((a, b) => b.amount - a.amount);
       setBids(sorted);
@@ -41,7 +42,8 @@ const BidLeaderboard = ({ listing, onClose, onPlaceBid }) => {
       id: `${update.bidderId}-${update.newBid}-${Date.now()}`,
       name: update.bidderName || 'Anonymous',
       amount: update.newBid,
-      timestamp: new Date()
+      timestamp: new Date(),
+      user: update.bidderId
     };
     setNewEntryId(newBidEntry.id);
     setBids(prev => {
