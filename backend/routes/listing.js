@@ -297,6 +297,10 @@ router.post('/award/:id', auth, async (req, res) => {
     } catch (err) {
         console.error('Email notify error:', err.message);
     }
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
 });
 
 // @route   POST api/listings/buy/:id
