@@ -253,39 +253,39 @@ router.post('/award/:id', auth, async (req, res) => {
 
     await listing.save();
 
-    // Broadcast real-time update via Socket.io so everyone sees it's closed and the winner sees "Pay Now"
-    const io = req.app.get('io');
-    const winnerData = await User.findById(userId).select('name');
-    io.emit('bid-update', {
-        listingId: listing._id,
-        newBid: amount,
-        bidderId: userId,
-        bidderName: winnerData?.name || 'Winner',
-        status: 'closed',
-        winnerId: userId,
-        bids: listing.bids.map(b => ({
-          user: b.user?._id || b.user,
-          amount: b.amount,
-          timestamp: b.timestamp
-        }))
-    });
-
-    // Send response immediately so Producer UI is snappy
+    // 1. Send response immediately so Producer UI is snappy and doesn't timeout
     res.json(listing);
 
-    // Notify winner via email (non-blocking in background)
-    try {
-        const winner = await User.findById(userId);
-        if (winner) {
+    // 2. Perform side effects in background (non-blocking)
+    (async () => {
+      try {
+        const io = req.app.get('io');
+        const winnerData = await User.findById(userId).select('name');
+        
+        io.emit('bid-update', {
+            listingId: listing._id,
+            newBid: amount,
+            bidderId: userId,
+            bidderName: winnerData?.name || 'Winner',
+            status: 'closed',
+            winnerId: userId,
+            bids: listing.bids.map(b => ({
+              user: b.user?._id || b.user,
+              amount: b.amount,
+              timestamp: b.timestamp
+            }))
+        });
+
+        if (winnerData) {
             const frontendUrl = process.env.FRONTEND_URL || 'https://agri-smart-ivory.vercel.app';
             await sendEmail({
-                to: winner.email,
+                to: winnerData.email || (await User.findById(userId)).email,
                 subject: `🏆 You Won the Auction for "${listing.title}" — Pay Within 24 Hours`,
                 html: `
                   <div style="font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0a;color:#fff;padding:40px;border-radius:16px;max-width:500px;margin:0 auto;">
                     <div style="background:linear-gradient(135deg,#14532d,#065f46);padding:24px;border-radius:12px;margin-bottom:24px;text-align:center;">
                       <div style="font-size:48px;margin-bottom:8px;">🏆</div>
-                      <h1 style="margin:0;font-size:24px;font-weight:900;">Congratulations, ${winner.name}!</h1>
+                      <h1 style="margin:0;font-size:24px;font-weight:900;">Congratulations!</h1>
                       <p style="color:#86efac;margin:8px 0 0;">You won the auction!</p>
                     </div>
                     <div style="background:#1a1a1a;border-radius:12px;padding:20px;margin-bottom:20px;border:1px solid #333;">
@@ -297,15 +297,16 @@ router.post('/award/:id', auth, async (req, res) => {
                       <p style="color:#a78bfa;font-weight:bold;margin:0 0 8px;">⏰ You have 24 hours to complete payment</p>
                       <p style="color:#aaa;font-size:13px;margin:0;">If payment is not completed within 24 hours, the auction will be awarded to the next highest bidder.</p>
                     </div>
-                    <a href="${frontendUrl}/dashboard/consumer" style="display:block;background:#22c55e;color:white;text-align:center;padding:16px;border-radius:12px;font-weight:900;font-size:16px;text-decoration:none;letter-spacing:0.5px;">Pay Now via Escrow →</a>
+                    <a href="${frontendUrl}/dashboard/consumer" style="display:block;background:#22c55e;color:white;text-align:center;padding:166px;border-radius:12px;font-weight:900;font-size:16px;text-decoration:none;letter-spacing:0.5px;">Pay Now via Escrow →</a>
                     <p style="color:#555;font-size:11px;text-align:center;margin-top:20px;">AgriSmart Secure Escrow System · P2P Marketplace</p>
                   </div>
                 `
             });
         }
-    } catch (err) {
-        console.error('Email notify error:', err.message);
-    }
+      } catch (err) {
+        console.error('Background Award Notify Error:', err.message);
+      }
+    })();
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');

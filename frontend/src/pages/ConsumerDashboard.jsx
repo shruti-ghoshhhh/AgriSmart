@@ -312,6 +312,11 @@ const ConsumerDashboard = () => {
           }
         };
 
+        if (!window.Razorpay) {
+          alert("❌ Razorpay SDK failed to load. Please check your internet connection, disable any script-blockers, and refresh the page.");
+          return;
+        }
+
         const rzp = new window.Razorpay(options);
         rzp.on('payment.failed', function (response){
            alert('Payment failed: ' + response.error.description);
@@ -319,7 +324,9 @@ const ConsumerDashboard = () => {
         rzp.open();
       })
       .catch(err => {
-        alert(err.response?.data?.message || 'Checkout failed. Item may be locked or sold.');
+        console.error('Checkout error:', err);
+        const msg = err.response?.data?.message || err.message || 'Checkout failed.';
+        alert(`❌ Checkout failed: ${msg}\n\nItem may be locked or you might not be the winner.`);
       });
   };
 
@@ -771,6 +778,10 @@ const ConsumerDashboard = () => {
                         >
                           🏆 Pay Now — You Won!
                         </button>
+                      ) : listing.status === 'closed' ? (
+                        <div className="flex-1 text-center py-2 px-4 bg-zinc-100 dark:bg-zinc-800 rounded-xl text-sm font-bold text-zinc-500 border border-zinc-200 dark:border-zinc-700">
+                           🚫 AUCTION ENDED
+                        </div>
                       ) : (
                         <button
                           onClick={() => setLeaderboardListing(listing)}
@@ -780,6 +791,14 @@ const ConsumerDashboard = () => {
                         </button>
                       )}
                     </div>
+                    {listing.status === 'closed' && listing.winner && (
+                      <div className="mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
+                         <span className="text-[10px] font-black uppercase text-zinc-400">Winner</span>
+                         <div className="flex items-center gap-1 text-nature-600 font-bold text-xs bg-nature-50 px-2 py-0.5 rounded-full">
+                            <Star size={10} fill="currentColor" /> {listing.winner.name || 'Winner Found'}
+                         </div>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
                 );

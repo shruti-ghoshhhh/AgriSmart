@@ -575,29 +575,29 @@ const ProducerDashboard = () => {
                   </div>
                </div>
 
-               {listings.map((listing, idx) => {
-                 const hasNewBid = newBidNotifications[listing._id];
-                 return (
-                 <motion.div 
-                    key={listing._id}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.1 }}
-                    className="bg-white dark:bg-zinc-900 p-6 rounded-3xl border border-earth-200 dark:border-zinc-800 shadow-sm hover:shadow-md transition-all group relative overflow-hidden"
-                 >
-                   {hasNewBid && (
-                     <div className="absolute top-0 left-0 right-0 bg-nature-500 text-white text-[9px] font-black py-1 text-center tracking-widest flex items-center justify-center gap-1">
-                       <Zap size={10} /> NEW BID: ₹{hasNewBid} — {listing.bids?.length || 0} bids
-                     </div>
-                   )}
-                   {listing.listingType === 'fixed' && (
-                     <div className="absolute top-0 right-0 bg-blue-500 text-white text-[8px] font-black px-3 py-1 uppercase tracking-widest rounded-bl-xl">Fixed Price</div>
-                   )}
-                   <div className={`flex justify-between items-start ${hasNewBid ? 'mt-5' : ''}`}>
-                     <div className="flex gap-4">
-                        <div className="w-16 h-16 rounded-2xl bg-earth-50 dark:bg-zinc-800 flex items-center justify-center text-nature-600 font-bold group-hover:scale-110 transition-transform">
-                          {listing.cropType?.charAt(0) || 'C'}
-                        </div>
+                {listings.filter(l => l.status === 'open').map((listing, idx) => {
+                  const hasNewBid = newBidNotifications[listing._id];
+                  return (
+                  <motion.div 
+                     key={listing._id}
+                     initial={{ opacity: 0, x: 20 }}
+                     animate={{ opacity: 1, x: 0 }}
+                     transition={{ delay: idx * 0.1 }}
+                     className="bg-white dark:bg-zinc-900 p-6 rounded-3xl border border-earth-200 dark:border-zinc-800 shadow-sm hover:shadow-md transition-all group relative overflow-hidden"
+                  >
+                    {hasNewBid && (
+                      <div className="absolute top-0 left-0 right-0 bg-nature-500 text-white text-[9px] font-black py-1 text-center tracking-widest flex items-center justify-center gap-1">
+                        <Zap size={10} /> NEW BID: ₹{hasNewBid} — {listing.bids?.length || 0} bids
+                      </div>
+                    )}
+                    {listing.listingType === 'fixed' && (
+                      <div className="absolute top-0 right-0 bg-blue-500 text-white text-[8px] font-black px-3 py-1 uppercase tracking-widest rounded-bl-xl">Fixed Price</div>
+                    )}
+                    <div className={`flex justify-between items-start ${hasNewBid ? 'mt-5' : ''}`}>
+                      <div className="flex gap-4">
+                         <div className="w-16 h-16 rounded-2xl bg-earth-50 dark:bg-zinc-800 flex items-center justify-center text-nature-600 font-bold group-hover:scale-110 transition-transform">
+                           {listing.cropType?.charAt(0) || 'C'}
+                         </div>
                         <div>
                           <h4 className="font-bold text-earth-900 dark:text-white group-hover:text-nature-600 transition-colors">{listing.title}</h4>
                           <p className="text-sm text-earth-500">{listing.quantity}kg available</p>
@@ -635,12 +635,45 @@ const ProducerDashboard = () => {
                  </motion.div>
                  );
                })}
-               {listings.length === 0 && (
-                 <div className="text-center py-20 bg-earth-50/50 dark:bg-zinc-900/50 rounded-3xl border-2 border-dashed border-earth-200 dark:border-zinc-800">
-                   <p className="text-earth-500 font-medium italic">No active listings in your inventory. Create one to start trading.</p>
-                 </div>
-               )}
-            </div>
+                {listings.filter(l => l.status === 'open').length === 0 && (
+                  <div className="text-center py-20 bg-earth-50/50 dark:bg-zinc-900/50 rounded-3xl border-2 border-dashed border-earth-200 dark:border-zinc-800">
+                    <p className="text-earth-500 font-medium italic">No active listings in your inventory. Create one to start trading.</p>
+                  </div>
+                )}
+
+                {/* Closed Auctions Section */}
+                {listings.some(l => l.status === 'closed') && (
+                  <div className="mt-12 space-y-6">
+                    <div className="flex justify-between items-center bg-zinc-100 dark:bg-zinc-800/50 p-4 rounded-2xl border border-zinc-200 dark:border-zinc-700">
+                        <h3 className="font-bold text-zinc-600 dark:text-zinc-400 flex items-center gap-2">
+                           <CheckCircle size={18} /> Past Auctions (Results)
+                        </h3>
+                    </div>
+                    {listings.filter(l => l.status === 'closed').map((listing) => (
+                      <div key={listing._id} className="bg-white dark:bg-zinc-900 p-5 rounded-3xl border border-earth-200 dark:border-zinc-800 shadow-sm opacity-75 grayscale hover:grayscale-0 transition-all">
+                        <div className="flex justify-between items-center">
+                          <div className="flex gap-4 items-center">
+                            <div className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 font-bold">
+                              {listing.cropType?.charAt(0)}
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-earth-900 dark:text-white leading-tight">{listing.title}</h4>
+                              <p className="text-xs text-earth-500">Ended on {new Date(listing.awardedAt || listing.updatedAt).toLocaleDateString()}</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                             <p className="text-[10px] font-black text-nature-600 uppercase tracking-widest mb-1">Winner</p>
+                             <div className="flex items-center gap-2 bg-nature-50 dark:bg-nature-950/30 px-3 py-1.5 rounded-xl border border-nature-100 dark:border-nature-900/30">
+                                <p className="text-sm font-black text-nature-700 dark:text-nature-400">{listing.winner?.name || 'Winner Found'}</p>
+                                <p className="text-xs font-bold text-nature-600">₹{listing.winningBid || listing.currentBid}</p>
+                             </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+             </div>
           </div>
         )}
 
