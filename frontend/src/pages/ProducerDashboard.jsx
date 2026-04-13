@@ -1126,7 +1126,9 @@ const ProducerDashboard = () => {
             if (type === 'AWARD_BID') {
               try {
                 const token = window.localStorage.getItem('token');
-                await axios.post(`/api/listings/award/${leaderboardListing._id}`, { userId: bidData.user?._id || bidData.user, amount: bidData.amount }, { headers: { 'x-auth-token': token }});
+                const targetId = bidData.user?._id || bidData.user?.id || bidData.user;
+                await axios.post(`/api/listings/award/${leaderboardListing._id}`, { userId: targetId, amount: bidData.amount }, { headers: { 'x-auth-token': token }});
+
                 setLeaderboardListing(null);
                 // Update listing in state to show as closed
                 setMyListings(prev => prev.map(l =>

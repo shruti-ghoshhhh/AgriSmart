@@ -360,11 +360,13 @@ const ConsumerDashboard = () => {
     
     if (typeOrAmount === 'AWARD_BID') {
         if (!window.confirm(`Are you sure you want to award this to ${bidData.name} for ₹${bidData.amount}?`)) return;
+        const targetId = bidData.user?._id || bidData.user?.id || bidData.user;
         try {
             await axios.post(`/api/listings/award/${leaderboardListing._id}`, 
-                { userId: bidData.user?._id || bidData.user, amount: bidData.amount }, 
+                { userId: targetId, amount: bidData.amount }, 
                 { headers: { 'x-auth-token': token }}
             );
+
             setLeaderboardListing(null);
             setListings(prev => prev.map(l => l._id === leaderboardListing._id ? { ...l, status: 'closed', winner: bidData.user } : l));
             alert('🏆 Auction awarded successfully!');

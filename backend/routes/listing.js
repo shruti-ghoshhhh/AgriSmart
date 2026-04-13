@@ -232,13 +232,18 @@ const handleExpiredAwards = async (listing) => {
 router.post('/award/:id', auth, async (req, res) => {
   try {
     const { userId, amount } = req.body;
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
+    
+    // Support both string ID and object with _id/id
+    const targetUserId = userId?._id || userId?.id || userId;
+
+    if (!mongoose.Types.ObjectId.isValid(targetUserId)) {
       return res.status(400).json({ message: 'Invalid User ID provided for awarding.' });
     }
     // Prevent self-awarding
-    if (userId.toString() === req.user.id) {
+    if (targetUserId.toString() === req.user.id) {
         return res.status(400).json({ message: 'You cannot award an auction to yourself.' });
     }
+
 
     const listing = await Auction.findById(req.params.id);
 
@@ -250,7 +255,8 @@ router.post('/award/:id', auth, async (req, res) => {
       return res.status(400).json({ message: 'Only auctions can be awarded' });
     }
 
-    listing.winner = userId;
+    listing.winner = targetUserId;
+
     listing.winningBid = amount;
     listing.status = 'closed';
     listing.awardedAt = new Date();
@@ -273,7 +279,8 @@ router.post('/award/:id', auth, async (req, res) => {
             bidderId: userId,
             bidderName: winnerData?.name || 'Winner',
             status: 'closed',
-            winnerId: userId,
+            winnerId: targetUserId,
+
             bids: listing.bids.map(b => ({
               user: b.user?._id || b.user,
               amount: b.amount,
