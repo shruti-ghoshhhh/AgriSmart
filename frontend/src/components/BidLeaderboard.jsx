@@ -224,7 +224,8 @@ const BidLeaderboard = ({ listing, onClose, onPlaceBid }) => {
         </div>
 
         {/* Bid input or Producer Action */}
-        {!listing ? null : (listing.producer?._id || listing.producer) === (user?.id || user?._id) ? (
+        {!listing ? null : ( (listing.producer?._id || listing.producer)?.toString() === (user?.id || user?._id)?.toString() ) ? (
+
 
           <div className="p-4 border-t border-zinc-800 bg-zinc-900/50">
             <p className="text-xs text-zinc-500 mb-2 font-bold uppercase tracking-wider">

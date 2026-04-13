@@ -355,21 +355,39 @@ const ConsumerDashboard = () => {
     });
   };
 
-  const handlePlaceBid = async (amount) => {
-    if (!amount || isNaN(amount)) return;
+  const handlePlaceBid = async (typeOrAmount, bidData) => {
     const token = localStorage.getItem('token');
+    
+    if (typeOrAmount === 'AWARD_BID') {
+        if (!window.confirm(`Are you sure you want to award this to ${bidData.name} for ₹${bidData.amount}?`)) return;
+        try {
+            await axios.post(`/api/listings/award/${leaderboardListing._id}`, 
+                { userId: bidData.user?._id || bidData.user, amount: bidData.amount }, 
+                { headers: { 'x-auth-token': token }}
+            );
+            setLeaderboardListing(null);
+            setListings(prev => prev.map(l => l._id === leaderboardListing._id ? { ...l, status: 'closed', winner: bidData.user } : l));
+            alert('🏆 Auction awarded successfully!');
+        } catch (err) {
+            alert(err.response?.data?.message || 'Error awarding auction');
+        }
+        return;
+    }
+
+    const amount = typeOrAmount;
+    if (!amount || isNaN(amount)) return;
     setIsBidding(true);
     try {
       await axios.post(`/api/listings/bid/${leaderboardListing._id}`, { amount: Number(amount) }, {
         headers: { 'x-auth-token': token }
       });
-      // No refresh needed — socket will update the leaderboard in real time
     } catch (err) {
       alert(err.response?.data?.message || 'Bidding failed');
     } finally {
       setIsBidding(false);
     }
   };
+
 
   const handleMarkReceived = async (orderId) => {
     try {
@@ -771,6 +789,13 @@ const ConsumerDashboard = () => {
                         >
                           Buy & Escrow
                         </button>
+                      ) : ( (listing.producer?._id || listing.producer)?.toString() === (user?.id || user?._id)?.toString() ) ? (
+                        <button
+                          onClick={() => setLeaderboardListing(listing)}
+                          className="flex-1 bg-gradient-to-r from-nature-600 to-lime-600 hover:from-nature-700 hover:to-lime-700 text-white py-2 rounded-xl text-sm font-black shadow-lg shadow-nature-600/30 transition-all active:scale-95 flex items-center justify-center gap-1"
+                        >
+                           Monitor & Award
+                        </button>
                       ) : ( (listing.winner?.toString() === (user?.id || user?._id)?.toString()) || (listing.winner?._id && listing.winner?._id.toString() === (user?.id || user?._id)?.toString()) ) ? (
                         <button
                           onClick={() => handleBuyNow(listing)}
@@ -791,6 +816,7 @@ const ConsumerDashboard = () => {
                         </button>
                       )}
                     </div>
+
                     {listing.status === 'closed' && listing.winner && (
                       <div className="mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
                          <span className="text-[10px] font-black uppercase text-zinc-400">Winner</span>

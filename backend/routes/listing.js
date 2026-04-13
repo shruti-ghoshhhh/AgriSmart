@@ -1,5 +1,6 @@
-const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
+
 const Auction = require('../models/Auction');
 const Order = require('../models/Order');
 const User = require('../models/User');
@@ -231,10 +232,14 @@ const handleExpiredAwards = async (listing) => {
 router.post('/award/:id', auth, async (req, res) => {
   try {
     const { userId, amount } = req.body;
-    const mongoose = require('mongoose');
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ message: 'Invalid User ID provided for awarding.' });
     }
+    // Prevent self-awarding
+    if (userId.toString() === req.user.id) {
+        return res.status(400).json({ message: 'You cannot award an auction to yourself.' });
+    }
+
     const listing = await Auction.findById(req.params.id);
 
     if (!listing) return res.status(404).json({ message: 'Listing not found' });
