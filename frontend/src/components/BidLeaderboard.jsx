@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Crown, TrendingUp, Zap, Clock, Users } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+
 
 const formatTime = (ts) => {
   if (!ts) return '';
@@ -13,7 +15,9 @@ const formatTime = (ts) => {
 };
 
 const BidLeaderboard = ({ listing, onClose, onPlaceBid }) => {
+  const { user } = useAuth();
   const [bids, setBids] = useState([]);
+
   const [newEntryId, setNewEntryId] = useState(null);
   const [topBidPulse, setTopBidPulse] = useState(false);
   const [bidAmount, setBidAmount] = useState('');
@@ -220,7 +224,8 @@ const BidLeaderboard = ({ listing, onClose, onPlaceBid }) => {
         </div>
 
         {/* Bid input or Producer Action */}
-        {!listing ? null : listing.producer === (window.localStorage.getItem('userId') || listing.producer) ? (
+        {!listing ? null : (listing.producer?._id || listing.producer) === (user?.id || user?._id) ? (
+
           <div className="p-4 border-t border-zinc-800 bg-zinc-900/50">
             <p className="text-xs text-zinc-500 mb-2 font-bold uppercase tracking-wider">
               Producer Action
